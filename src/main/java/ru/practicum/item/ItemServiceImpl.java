@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Set;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 class ItemServiceImpl implements ItemService {
     private final ItemRepository repository;
 
@@ -28,6 +29,21 @@ class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public void deleteItem(long userId, long itemId) {
-        repository.deleteByUserIdAndItemId(userId, itemId);
+        repository.deleteByUserIdAndId(userId, itemId);
+    }
+
+    @Override
+    public List<ItemInfoWithUrlState> getUserItemStates(long userId) {
+        return repository.findAllByUserIdWithUrlState(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ItemDto> getItems(long userId, Set<String> tags) {
+        //BooleanExpression byUserId = QItem.item.userId.eq(userId);
+       // BooleanExpression byAnyTag = QItem.item.tags.any().in(tags);
+       // Iterable<Item> foundItems = repository.findAll(byUserId.and(byAnyTag));
+       // return ItemMapper.toItemDto(foundItems);
+        return null;
     }
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/items")
@@ -12,13 +13,18 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> get(@RequestHeader("X-Later-User-Id") long userId) {
-        return itemService.getItems(userId);
+    public List<ItemDto> get(@RequestHeader("X-Later-User-Id") long userId,
+                             @RequestParam(required = false) Set<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return itemService.getItems(userId);
+        } else {
+            return itemService.getItems(userId, tags);
+        }
     }
 
     @PostMapping
     public ItemDto add(@RequestHeader("X-Later-User-Id") Long userId,
-                    @RequestBody ItemDto item) {
+                       @RequestBody ItemDto item) {
         return itemService.addNewItem(userId, item);
     }
 
@@ -26,5 +32,10 @@ public class ItemController {
     public void deleteItem(@RequestHeader("X-Later-User-Id") long userId,
                            @PathVariable long itemId) {
         itemService.deleteItem(userId, itemId);
+    }
+
+    @GetMapping("/states")
+    public List<ItemInfoWithUrlState> getUserItemStates(@RequestHeader("X-Later-User-Id") long userId) {
+        return itemService.getUserItemStates(userId);
     }
 }
