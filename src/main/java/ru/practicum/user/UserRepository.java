@@ -4,9 +4,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
 
     List<User> findUserByEmail(String email);
+
+    List<UserShort> findByEmailContainingIgnoreCase(String emailSearch);
+
+    List<UserShort> findAllByEmailContainingIgnoreCase(String emailSearch);
 }
 
 /*

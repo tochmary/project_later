@@ -1,12 +1,10 @@
 package ru.practicum.user;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -21,5 +19,10 @@ public class UserController {
     @PostMapping
     public UserDto saveNewUser(@RequestBody UserDto user) {
         return userService.saveUser(user);
+    }
+
+    @GetMapping("/email")
+    public List<UserShortWithIP> getAllUsersByEmail(@RequestParam String email) {
+        return userService.getUsersEmailWithIp(email);
     }
 }

@@ -24,4 +24,9 @@ class UserServiceImpl implements UserService {
         User user = repository.save(UserMapper.toNewUser(userDto));
         return UserMapper.toUserDto(user);
     }
+
+    @Override
+    public List<UserShortWithIP> getUsersEmailWithIp(String email) {
+        return repository.findAllByEmailContainingIgnoreCaseWithIP(email);
+    }
 }
