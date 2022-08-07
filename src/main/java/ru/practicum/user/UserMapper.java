@@ -1,10 +1,14 @@
 package ru.practicum.user;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
 
     public static UserDto toUserDto(User user) {
@@ -29,13 +33,11 @@ public class UserMapper {
     }
 
     public static User toNewUser(UserDto userDto) {
-        return new User(
-                null,
-                userDto.getEmail(),
-                userDto.getFirstName(),
-                userDto.getLastName(),
-                null,
-                userDto.getState()
-                );
+        User user = new User();
+        user.setEmail(userDto.getEmail());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setState(userDto.getState());
+        return user;
     }
 }

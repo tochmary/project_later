@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "users", schema = "public")
+@Table(name = "items", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 class Item {
@@ -25,6 +25,7 @@ class Item {
     private String url;
 
     @ElementCollection
+    //@ManyToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
     @CollectionTable(name="tags", joinColumns=@JoinColumn(name="item_id"))
     @Column(name="name")
     private Set<String> tags = new HashSet<>();
