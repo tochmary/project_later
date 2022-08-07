@@ -1,5 +1,6 @@
 package ru.practicum.item;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -40,10 +41,9 @@ class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemDto> getItems(long userId, Set<String> tags) {
-        //BooleanExpression byUserId = QItem.item.userId.eq(userId);
-       // BooleanExpression byAnyTag = QItem.item.tags.any().in(tags);
-       // Iterable<Item> foundItems = repository.findAll(byUserId.and(byAnyTag));
-       // return ItemMapper.toItemDto(foundItems);
-        return null;
+        BooleanExpression byUserId = QItem.item.userId.eq(userId);
+        BooleanExpression byAnyTag = QItem.item.tags.any().in(tags);
+        Iterable<Item> foundItems = repository.findAll(byUserId.and(byAnyTag));
+        return ItemMapper.toItemDto((List<Item>) foundItems);
     }
 }
