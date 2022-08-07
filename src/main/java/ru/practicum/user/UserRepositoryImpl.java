@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Repository
+//@Repository
 public class UserRepositoryImpl implements UserRepositoryCustom {
     private final UserRepository userRepository;
 

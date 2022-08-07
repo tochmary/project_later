@@ -5,17 +5,19 @@ package ru.practicum.item;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@RepositoryRestResource
 interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositoryCustom, QuerydslPredicateExecutor<Item>
 {
 
     List<Item> findByUserId(long userId);
 
-    //Optional<Item> findByUserIdAndUrl(long userId, String url);
+    Optional<Item> findByUserIdAndUrl(long userId, String url);
 
     List<ItemInfo> findAllByUserId(Long userId);
 
