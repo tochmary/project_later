@@ -21,6 +21,8 @@ interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositoryCustom
 
     List<ItemInfo> findAllByUserId(Long userId);
 
+    Optional<Item> findByUserIdAndResolvedUrl(long userId, String resolvedUrl);
+
     @Query("select new ru.practicum.item.ItemCountByUser(it.userId, count(it.id))" +
             "from Item as it "+
             "where it.url like ?1 "+

@@ -2,6 +2,7 @@ package ru.practicum.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.item.dto.AddItemRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -24,8 +25,8 @@ public class ItemController {
 
     @PostMapping
     public ItemDto add(@RequestHeader("X-Later-User-Id") Long userId,
-                       @RequestBody ItemDto item) {
-        return itemService.addNewItem(userId, item);
+                       @RequestBody AddItemRequest request) {
+        return itemService.addNewItem(userId, request);
     }
 
     @DeleteMapping("/{itemId}")

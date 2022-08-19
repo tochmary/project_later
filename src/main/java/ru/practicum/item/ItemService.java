@@ -1,12 +1,14 @@
 package ru.practicum.item;
 
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.item.dto.AddItemRequest;
+
 import java.util.List;
 import java.util.Set;
 
 interface ItemService {
 
-    ItemDto addNewItem(long userId, ItemDto itemDto);
+    ItemDto addNewItem(Long userId, AddItemRequest request);
 
     List<ItemDto> getItems(long userId);
 

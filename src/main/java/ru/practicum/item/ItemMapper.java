@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -34,11 +35,17 @@ public class ItemMapper {
         return dtos;
     }*/
 
-    public static Item toItem(ItemDto itemDto, long userId) {
+    public static Item toItem(UrlMetaDataRetriever.UrlMetadata result, Long userId, Set<String> tags) {
         Item item = new Item();
         item.setUserId(userId);
-        item.setUrl(itemDto.getUrl());
-        item.setTags(itemDto.getTags());
+        item.setUrl(result.getNormalUrl());
+        item.setResolvedUrl(result.getResolvedUrl());
+        item.setMimeType(result.getMimeType());
+        item.setTitle(result.getTitle());
+        item.setHasImage(result.isHasImage());
+        item.setHasVideo(result.isHasVideo());
+        item.setDateResolved(result.getDateResolved());
+        item.setTags(tags);
         return item;
     }
 }
