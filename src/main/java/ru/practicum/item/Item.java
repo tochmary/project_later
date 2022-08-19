@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,6 +24,25 @@ class Item {
 
     @Column
     private String url;
+
+    @Column(name = "resolved_url")
+    private String resolvedUrl;
+
+    @Column(name = "mime_type")
+    private String mimeType;
+
+    private String title;
+
+    @Column(name = "has_image")
+    private boolean hasImage;
+
+    @Column(name = "has_video")
+    private boolean hasVideo;
+
+    private boolean unread = true;
+
+    @Column(name = "date_resolved")
+    private Instant dateResolved;
 
     @ElementCollection
     //@ManyToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
