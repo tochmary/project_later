@@ -1,19 +1,19 @@
-
-
-package ru.practicum.item;
+package ru.practicum.item.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import ru.practicum.item.model.Item;
+import ru.practicum.item.model.ItemCountByUser;
+import ru.practicum.item.model.ItemInfo;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @RepositoryRestResource
-interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositoryCustom, QuerydslPredicateExecutor<Item>
-{
+public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositoryCustom, QuerydslPredicateExecutor<Item> {
 
     List<Item> findByUserId(long userId);
 
@@ -23,7 +23,7 @@ interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositoryCustom
 
     Optional<Item> findByUserIdAndResolvedUrl(long userId, String resolvedUrl);
 
-    @Query("select new ru.practicum.item.ItemCountByUser(it.userId, count(it.id))" +
+    @Query("select new ru.practicum.item.model.ItemCountByUser(it.userId, count(it.id))" +
             "from Item as it "+
             "where it.url like ?1 "+
             "group by it.userId "+

@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.item.dao.ItemRepository;
 import ru.practicum.item.dto.AddItemRequest;
+import ru.practicum.item.model.Item;
+import ru.practicum.item.model.ItemInfoWithUrlState;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +24,7 @@ class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getItems(long userId) {
         List<Item> items = repository.findByUserId(userId);
-        return ItemMapper.toItemDto(items);
+        return ItemMapper.mapToItemDto(items);
     }
 
     @Override
@@ -36,7 +39,7 @@ class ItemServiceImpl implements ItemService {
         Optional<Item> maybeExistingItem = repository.findByUserIdAndResolvedUrl(userId, result.getResolvedUrl());
         Item item;
         if(maybeExistingItem.isEmpty()) {
-            item = repository.save(ItemMapper.toItem(result, userId, request.getTags()));
+            item = repository.save(ItemMapper.mapToItem(result, userId, request.getTags()));
         } else {
             item = maybeExistingItem.get();
             if(request.getTags() != null && !request.getTags().isEmpty()) {
@@ -44,7 +47,7 @@ class ItemServiceImpl implements ItemService {
                 repository.save(item);
             }
         }
-        return ItemMapper.toItemDto(item);
+        return ItemMapper.mapToItemDto(item);
     }
 
     @Override
@@ -64,6 +67,6 @@ class ItemServiceImpl implements ItemService {
         BooleanExpression byUserId = QItem.item.userId.eq(userId);
         BooleanExpression byAnyTag = QItem.item.tags.any().in(tags);
         Iterable<Item> foundItems = repository.findAll(byUserId.and(byAnyTag));
-        return ItemMapper.toItemDto((List<Item>) foundItems);
+        return ItemMapper.mapToItemDto((List<Item>) foundItems);
     }
 }

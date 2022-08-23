@@ -1,4 +1,4 @@
-package ru.practicum.item;
+package ru.practicum.item.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.Set;
 @Table(name = "items", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
-class Item {
+public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

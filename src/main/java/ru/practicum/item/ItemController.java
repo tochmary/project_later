@@ -3,6 +3,7 @@ package ru.practicum.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.item.dto.AddItemRequest;
+import ru.practicum.item.model.ItemInfoWithUrlState;
 
 import java.util.List;
 import java.util.Set;
