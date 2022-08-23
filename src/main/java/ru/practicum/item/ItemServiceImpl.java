@@ -3,12 +3,12 @@ package ru.practicum.item;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.item.dao.ItemRepository;
 import ru.practicum.item.dto.AddItemRequest;
 import ru.practicum.item.model.Item;
 import ru.practicum.item.model.ItemInfoWithUrlState;
+import ru.practicum.item.model.QItem;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,8 +23,8 @@ class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItems(long userId) {
-        List<Item> items = repository.findByUserId(userId);
-        return ItemMapper.mapToItemDto(items);
+        List<Item> userItems = repository.findByUserId(userId);
+        return ItemMapper.mapToItemDto(userItems);
     }
 
     @Override
@@ -64,8 +64,10 @@ class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemDto> getItems(long userId, Set<String> tags) {
-        BooleanExpression byUserId = QItem.item.userId.eq(userId);
-        BooleanExpression byAnyTag = QItem.item.tags.any().in(tags);
+        // Для поиска ссылок используем QueryDSL чтобы было удобно настраивать разные варианты фильтров
+        QItem item = QItem.item;
+        BooleanExpression byUserId = item.userId.eq(userId);
+        BooleanExpression byAnyTag = item.tags.any().in(tags);
         Iterable<Item> foundItems = repository.findAll(byUserId.and(byAnyTag));
         return ItemMapper.mapToItemDto((List<Item>) foundItems);
     }
