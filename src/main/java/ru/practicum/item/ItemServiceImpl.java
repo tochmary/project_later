@@ -6,10 +6,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.common.InsufficientPermissionException;
+import ru.practicum.common.NotFoundException;
 import ru.practicum.item.dao.ItemRepository;
 import ru.practicum.item.dto.AddItemRequest;
 import ru.practicum.item.dto.GetItemRequest;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ModifyItemRequest;
 import ru.practicum.item.model.Item;
 import ru.practicum.item.model.ItemInfoWithUrlState;
 import ru.practicum.item.model.QItem;
@@ -114,6 +117,41 @@ class ItemServiceImpl implements ItemService {
         // конвертируем результат в DTO и возвращаем контроллеру
         Iterable<Item> items = repository.findAll(finalCondition, pageRequest);
         return ItemMapper.mapToItemDto(items);
+    }
+
+    @Override
+    public ItemDto changeItem(long userId, ModifyItemRequest request) {
+        Optional<Item> maybeItem = getAndCheckPermissions(userId, request.getItemId());
+        if(maybeItem.isPresent()) {
+            Item item = maybeItem.get();
+
+            item.setUnread(!request.isRead());
+
+            // Если существующий набор тегов нужно заменить новым (в том числе пустым),
+            // то предварительно нужно очистить коллекцию тегов
+            if(request.isReplaceTags()) {
+                item.getTags().clear();
+            }
+            // Добавляем переданные теги
+            if(request.hasTags()) {
+                item.getTags().addAll(request.getTags());
+            }
+            item = repository.save(item);
+            return ItemMapper.mapToItemDto(item);
+        } else {
+            throw new NotFoundException("The item with id " + request.getItemId() + " was not found");
+        }
+    }
+
+    private Optional<Item> getAndCheckPermissions(long userId, long itemId) {
+        Optional<Item> maybeItem = repository.findById(itemId);
+        if (maybeItem.isPresent()) {
+            Item item = maybeItem.get();
+            if(!item.getUserId().equals(userId)) {
+                throw new InsufficientPermissionException("You do not have permission to perform this operation");
+            }
+        }
+        return maybeItem;
     }
 
     private BooleanExpression makeStateCondition(GetItemRequest.State state) {

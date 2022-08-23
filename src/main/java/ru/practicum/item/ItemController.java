@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.item.dto.AddItemRequest;
 import ru.practicum.item.dto.GetItemRequest;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ModifyItemRequest;
 import ru.practicum.item.model.ItemInfoWithUrlState;
 
 import java.util.List;
@@ -34,6 +35,12 @@ public class ItemController {
     @DeleteMapping("/{itemId}")
     public void deleteItem(@RequestHeader("X-Later-User-Id") long userId, @PathVariable long itemId) {
         itemService.deleteItem(userId, itemId);
+    }
+
+    @PatchMapping
+    public ItemDto modifyItem(@RequestHeader("X-Later-User-Id") long userId,
+                              @RequestBody ModifyItemRequest request) {
+        return itemService.changeItem(userId, request);
     }
 
     @GetMapping("/states")

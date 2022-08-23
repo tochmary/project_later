@@ -3,6 +3,7 @@ package ru.practicum.item;
 import ru.practicum.item.dto.AddItemRequest;
 import ru.practicum.item.dto.GetItemRequest;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ModifyItemRequest;
 import ru.practicum.item.model.ItemInfoWithUrlState;
 
 import java.util.List;
@@ -17,4 +18,6 @@ interface ItemService {
     List<ItemInfoWithUrlState> getUserItemStates(long userId);
 
     List<ItemDto> getItems(GetItemRequest req);
+
+    ItemDto changeItem(long userId, ModifyItemRequest request);
 }
