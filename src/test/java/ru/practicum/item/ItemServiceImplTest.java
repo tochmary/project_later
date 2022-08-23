@@ -3,9 +3,9 @@ package ru.practicum.item;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import ru.practicum.config.PersistenceConfig;
+import ru.practicum.item.dto.ItemDto;
 
 import javax.transaction.Transactional;
 import java.util.List;

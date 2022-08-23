@@ -2,15 +2,21 @@ package ru.practicum.item;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.model.Item;
 
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ItemMapper {
+final class ItemMapper {
+    private static final DateTimeFormatter dtFormatter = DateTimeFormatter
+            .ofPattern("yyyy.MM.dd hh:mm:ss")
+            .withZone(ZoneOffset.UTC);
 
     public static Item mapToItem(UrlMetaDataRetriever.UrlMetadata result, Long userId, Set<String> tags) {
         Item item = new Item();
@@ -27,25 +33,32 @@ public class ItemMapper {
     }
 
     public static ItemDto mapToItemDto(Item item) {
-        return new ItemDto(
-                item.getId(),
-                item.getUserId(),
-                item.getUrl(),
-                new HashSet<>(item.getTags())
-        );
+        return ItemDto.builder()
+                .id(item.getId())
+                .title(item.getTitle())
+                .normalUrl(item.getUrl())
+                .resolvedUrl(item.getResolvedUrl())
+                .hasImage(item.isHasImage())
+                .hasVideo(item.isHasVideo())
+                .mimeType(item.getMimeType())
+                .unread(item.isUnread())
+                .dateResolved(dtFormatter.format(item.getDateResolved()))
+                // Нужно скопировать все элементы в новую коллекцию - чтобы запустить механизм ленивой загрузки.
+                .tags(new HashSet<>(item.getTags()))
+                .build();
     }
 
+    public static List<ItemDto> mapToItemDto(Iterable<Item> items) {
+        List<ItemDto> dtos = new ArrayList<>();
+        for (Item item : items) {
+            dtos.add(mapToItemDto(item));
+        }
+        return dtos;
+    }
+/*
     public static List<ItemDto> mapToItemDto(List<Item> itemList) {
         return itemList.stream()
                 .map(ItemMapper::mapToItemDto)
                 .collect(Collectors.toList());
-    }
-/*
-    public static List<ItemDto> toItemDto(Iterable<Item> items) {
-        List<ItemDto> dtos = new ArrayList<>();
-        for (Item item : items) {
-            dtos.add(toItemDto(item));
-        }
-        return dtos;
     }*/
 }

@@ -1,11 +1,11 @@
 package ru.practicum.item;
 
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.item.dto.AddItemRequest;
+import ru.practicum.item.dto.GetItemRequest;
+import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.model.ItemInfoWithUrlState;
 
 import java.util.List;
-import java.util.Set;
 
 interface ItemService {
     List<ItemDto> getItems(long userId);
@@ -16,6 +16,5 @@ interface ItemService {
 
     List<ItemInfoWithUrlState> getUserItemStates(long userId);
 
-    @Transactional(readOnly = true)
-    List<ItemDto> getItems(long userId, Set<String> tags);
+    List<ItemDto> getItems(GetItemRequest req);
 }

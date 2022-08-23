@@ -2,17 +2,21 @@ package ru.practicum.item;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.item.dao.ItemRepository;
 import ru.practicum.item.dto.AddItemRequest;
+import ru.practicum.item.dto.GetItemRequest;
+import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.model.Item;
 import ru.practicum.item.model.ItemInfoWithUrlState;
 import ru.practicum.item.model.QItem;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -63,12 +67,80 @@ class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemDto> getItems(long userId, Set<String> tags) {
+    public List<ItemDto> getItems(GetItemRequest req) {
         // Для поиска ссылок используем QueryDSL чтобы было удобно настраивать разные варианты фильтров
         QItem item = QItem.item;
-        BooleanExpression byUserId = item.userId.eq(userId);
-        BooleanExpression byAnyTag = item.tags.any().in(tags);
-        Iterable<Item> foundItems = repository.findAll(byUserId.and(byAnyTag));
-        return ItemMapper.mapToItemDto((List<Item>) foundItems);
+        // Мы будем анализировать какие фильтры указал пользователь
+        // И все нужные условия фильтрации будем собирать в список
+        List<BooleanExpression> conditions = new ArrayList<>();
+        // Условие, которое будет проверяться всегда - пользователь сделавший запрос
+        // должен быть тем же пользователем, что сохранил ссылку
+        conditions.add(item.userId.eq(req.getUserId()));
+
+        // Проверяем один из фильтров указанных в запросе - state
+        GetItemRequest.State state = req.getState();
+        // Если пользователь указал, что его интересуют все ссылки, вне зависимости
+        // от состояния, тогда пропускаем этот фильтр. В обратном случае анализируем
+        // указанное состояние и формируем подходящее условие для запроса
+        if(!state.equals(GetItemRequest.State.ALL)) {
+            conditions.add(makeStateCondition(state));
+        }
+
+        // Если пользователь указал, что его интересуют ссылки вне зависимости
+        // от типа их содержимого, то пропускаем фильтра, иначе анализируем
+        // указанный тип контента и формируем соответствующее условие
+        GetItemRequest.ContentType contentType = req.getContentType();
+        if(!contentType.equals(GetItemRequest.ContentType.ALL)) {
+            conditions.add(makeContentTypeCondition(contentType));
+        }
+
+        // если пользователя интересуют ссылки с конкретными тэгами,
+        // то добавляем это условие в запрос
+        if(req.hasTags()) {
+            conditions.add(item.tags.any().in(req.getTags()));
+        }
+
+        // из всех подготовленных условий, составляем единое условие
+        BooleanExpression finalCondition = conditions.stream()
+                .reduce(BooleanExpression::and)
+                .get();
+
+        // анализируем, какой вариант сортировки выбрал пользователь
+        // и какое количество элементов он выбрал для отображения
+        Sort sort = makeOrderByClause(req.getSort());
+        PageRequest pageRequest = PageRequest.of(0, req.getLimit(), sort);
+
+        // выполняем запрос к базе данных со всеми подготовленными настройками
+        // конвертируем результат в DTO и возвращаем контроллеру
+        Iterable<Item> items = repository.findAll(finalCondition, pageRequest);
+        return ItemMapper.mapToItemDto(items);
+    }
+
+    private BooleanExpression makeStateCondition(GetItemRequest.State state) {
+        if(state.equals(GetItemRequest.State.READ)) {
+            return QItem.item.unread.isFalse();
+        } else {
+            return QItem.item.unread.isTrue();
+        }
+    }
+
+    private BooleanExpression makeContentTypeCondition(GetItemRequest.ContentType contentType) {
+        if(contentType.equals(GetItemRequest.ContentType.ARTICLE)) {
+            return QItem.item.mimeType.eq("text");
+        } else if(contentType.equals(GetItemRequest.ContentType.IMAGE)) {
+            return QItem.item.mimeType.eq("image");
+        } else {
+            return QItem.item.mimeType.eq("video");
+        }
+    }
+
+    private Sort makeOrderByClause(GetItemRequest.Sort sort) {
+        switch (sort) {
+            case TITLE: return Sort.by("title").ascending();
+            case SITE: return Sort.by("resolvedUrl").ascending();
+            case OLDEST: return Sort.by("dateResolved").ascending();
+            case NEWEST:
+            default: return Sort.by("dateResolved").descending();
+        }
     }
 }

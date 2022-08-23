@@ -3,10 +3,11 @@ package ru.practicum.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.item.dto.AddItemRequest;
+import ru.practicum.item.dto.GetItemRequest;
+import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.model.ItemInfoWithUrlState;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/items")
@@ -16,12 +17,12 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> get(@RequestHeader("X-Later-User-Id") long userId,
-                             @RequestParam(required = false) Set<String> tags) {
-        if (tags == null || tags.isEmpty()) {
-            return itemService.getItems(userId);
-        } else {
-            return itemService.getItems(userId, tags);
-        }
+                             @RequestParam(defaultValue = "unread") String state,
+                             @RequestParam(defaultValue = "all") String contentType,
+                             @RequestParam(defaultValue = "newest") String sort,
+                             @RequestParam(defaultValue = "10") int limit,
+                             @RequestParam(required = false) List<String> tags) {
+        return itemService.getItems(GetItemRequest.of(userId, state, contentType, sort, limit, tags));
     }
 
     @PostMapping
@@ -31,8 +32,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    public void deleteItem(@RequestHeader("X-Later-User-Id") long userId,
-                           @PathVariable long itemId) {
+    public void deleteItem(@RequestHeader("X-Later-User-Id") long userId, @PathVariable long itemId) {
         itemService.deleteItem(userId, itemId);
     }
 
